@@ -6,11 +6,11 @@ This is an Ansible repository (`ansible-bn`) for managing a fleet of Ubuntu and 
 
 ## Architecture
 
-- **Inventory**: `inventory/hosts.yml` — three host groups: `ubuntu`, `debian`, and `desktops`
-- **Group variables**: `inventory/group_vars/` — `all.yml` for shared vars, per-group files as needed (e.g., `desktops.yml`)
+- **Inventory**: `inventory/hosts.yml` — three host groups: `ubuntu`, `debian`, and `workstations`
+- **Group variables**: `inventory/group_vars/` — `all.yml` for shared vars, per-group files as needed (e.g., `workstations.yml`)
 - **Host variables**: `inventory/host_vars/<hostname>.yml` — per-host overrides (users, packages, etc.)
 - **Roles**: `roles/<role_name>/` — standard Ansible role layout (tasks, defaults, handlers, templates, files)
-- **Main playbook**: `site.yml` — applies roles to hosts; `common`, `docker`, and `ros` to all; `desktop` to the `desktops` group
+- **Main playbook**: `site.yml` — applies roles to hosts; `common`, `docker`, `ros`, `docker_compose`, and `nfs_client` to all; `desktop` to the `workstations` group
 - **Config**: `ansible.cfg` — inventory path, sudo escalation, no host key checking
 - **External deps**: `requirements.yml` — Galaxy collections and roles
 
@@ -20,6 +20,8 @@ This is an Ansible repository (`ansible-bn`) for managing a fleet of Ubuntu and 
 - **docker** — rootless Docker (per-user via `docker_users` variable)
 - **ros** — ROS 2 install; auto-selects distro by OS codename, skips unsupported releases
 - **desktop** — Google Chrome and VS Code (split into `tasks/chrome.yml` and `tasks/vscode.yml`)
+- **docker_compose** — deploys Docker Compose services per host; compose files live in `roles/docker_compose/files/services/<name>/docker-compose.yml`; assign services per host via `docker_compose_services` in host vars
+- **nfs_client** — mounts NFS shares per host; assign mounts via `nfs_mounts` in host vars (split into `tasks/mount.yml` per mount)
 
 ## Conventions
 
@@ -50,9 +52,16 @@ ansible-playbook site.yml --check --diff
 
 # Target a group or host
 ansible-playbook site.yml --limit ubuntu
-ansible-playbook site.yml --limit desktops
+ansible-playbook site.yml --limit workstations
 ansible-playbook site.yml --limit <hostname>
 ```
+
+## CI
+
+GitHub Actions workflow (`.github/workflows/lint.yml`) runs on push/PR to `main`:
+- **yamllint** — YAML syntax and style (config: `.yamllint`)
+- **ansible-lint** — Ansible best practices (config: `.ansible-lint`)
+- **syntax-check** — `ansible-playbook site.yml --syntax-check`
 
 ## When Adding New Functionality
 

@@ -1,0 +1,17 @@
+---
+# Docker users for rootless Docker
+docker_users:
+  - tbaltovski
+
+# Docker Compose services to deploy
+docker_compose_user: tbaltovski
+docker_compose_services:
+  - portainer
+
+# NFS mounts
+nfs_mounts:
+  - src: "nas:/srv/data"
+    path: /mnt/data
+  - src: "nas:/srv/media"
+    path: /mnt/media
+    opts: "ro,sync,hard,intr"

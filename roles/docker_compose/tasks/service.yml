@@ -1,0 +1,45 @@
+---
+- name: "Create directory for {{ service_name }}"
+  ansible.builtin.file:
+    path: "{{ docker_compose_dir }}/{{ service_name }}"
+    state: directory
+    owner: "{{ docker_compose_user }}"
+    group: "{{ docker_compose_user }}"
+    mode: "0755"
+
+- name: "Copy docker-compose.yml for {{ service_name }}"
+  ansible.builtin.copy:
+    src: "services/{{ service_name }}/docker-compose.yml"
+    dest: "{{ docker_compose_dir }}/{{ service_name }}/docker-compose.yml"
+    owner: "{{ docker_compose_user }}"
+    group: "{{ docker_compose_user }}"
+    mode: "0644"
+  register: compose_file
+
+- name: "Start {{ service_name }}"
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ docker_compose_dir }}/{{ service_name }}"
+  become: true
+  become_user: "{{ docker_compose_user }}"
+  environment:
+    DOCKER_HOST: "unix:///run/user/{{ docker_compose_uid }}/docker.sock"
+    XDG_RUNTIME_DIR: "/run/user/{{ docker_compose_uid }}"
+    DOCKER_UID: "{{ docker_compose_uid }}"
+  changed_when: compose_started.stdout is search('Started|Created')
+  register: compose_started
+  when: compose_file.changed
+
+- name: "Ensure {{ service_name }} is running"
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ docker_compose_dir }}/{{ service_name }}"
+  become: true
+  become_user: "{{ docker_compose_user }}"
+  environment:
+    DOCKER_HOST: "unix:///run/user/{{ docker_compose_uid }}/docker.sock"
+    XDG_RUNTIME_DIR: "/run/user/{{ docker_compose_uid }}"
+    DOCKER_UID: "{{ docker_compose_uid }}"
+  changed_when: ensure_running.stdout is search('Started|Created')
+  register: ensure_running
+  when: not compose_file.changed

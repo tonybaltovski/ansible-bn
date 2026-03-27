@@ -1,0 +1,14 @@
+---
+- name: "Create mount point {{ nfs_mount.path }}"
+  ansible.builtin.file:
+    path: "{{ nfs_mount.path }}"
+    state: directory
+    mode: "0755"
+
+- name: "Mount {{ nfs_mount.src }} at {{ nfs_mount.path }}"
+  ansible.posix.mount:
+    src: "{{ nfs_mount.src }}"
+    path: "{{ nfs_mount.path }}"
+    fstype: nfs
+    opts: "{{ nfs_mount.opts | default('rw,sync,hard,intr') }}"
+    state: mounted

@@ -1,0 +1,9 @@
+---
+# Base directory on remote hosts for compose stacks
+docker_compose_dir: /home/{{ docker_compose_user }}/docker
+
+# User to run compose stacks as (rootless Docker)
+docker_compose_user: ""
+
+# List of services to deploy (maps to files/services/<name>/docker-compose.yml)
+docker_compose_services: []

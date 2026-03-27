@@ -1,0 +1,11 @@
+---
+- name: Install NFS client packages
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+
+- name: Configure NFS mount
+  ansible.builtin.include_tasks: mount.yml
+  loop: "{{ nfs_mounts }}"
+  loop_control:
+    loop_var: nfs_mount

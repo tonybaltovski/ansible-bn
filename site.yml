@@ -5,8 +5,10 @@
     - common
     - docker
     - ros
+    - docker_compose
+    - nfs_client
 
 - name: Apply desktop configuration
-  hosts: desktops
+  hosts: workstations
   roles:
     - desktop

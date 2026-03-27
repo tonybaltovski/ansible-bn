@@ -1,0 +1,8 @@
+---
+# NFS mounts to configure on this host
+# Example:
+#   nfs_mounts:
+#     - src: "fileserver:/srv/data"
+#       path: /mnt/data
+#       opts: "rw,sync,hard,intr"
+nfs_mounts: []
