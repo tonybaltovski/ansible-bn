@@ -1,0 +1,5 @@
+---
+# Rootless Docker is managed per-user via systemd user services.
+# Restart individual user services with:
+#   systemctl --user restart docker
+# or via Ansible using scope: user with become_user.

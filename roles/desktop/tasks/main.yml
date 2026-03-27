@@ -1,0 +1,6 @@
+---
+- name: Install Google Chrome
+  ansible.builtin.include_tasks: chrome.yml
+
+- name: Install VS Code
+  ansible.builtin.include_tasks: vscode.yml

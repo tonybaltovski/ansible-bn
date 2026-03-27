@@ -1,0 +1,12 @@
+---
+- name: Apply common configuration to all hosts
+  hosts: all
+  roles:
+    - common
+    - docker
+    - ros
+
+- name: Apply desktop configuration
+  hosts: desktops
+  roles:
+    - desktop

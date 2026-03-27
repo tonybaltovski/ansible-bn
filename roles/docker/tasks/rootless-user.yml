@@ -1,0 +1,54 @@
+---
+- name: "Enable linger for {{ docker_user }}"
+  ansible.builtin.command:
+    cmd: "loginctl enable-linger {{ docker_user }}"
+  changed_when: false
+
+- name: "Get uid for {{ docker_user }}"
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ docker_user }}"
+  register: docker_user_uid_result
+
+- name: "Set uid fact for {{ docker_user }}"
+  ansible.builtin.set_fact:
+    docker_user_uid: "{{ docker_user_uid_result.ansible_facts.getent_passwd[docker_user][1] }}"
+
+- name: "Check if rootless Docker is already set up for {{ docker_user }}"
+  ansible.builtin.stat:
+    path: "/home/{{ docker_user }}/.config/systemd/user/docker.service"
+  register: docker_rootless_service
+
+- name: "Install rootless Docker for {{ docker_user }}"
+  ansible.builtin.command:
+    cmd: dockerd-rootless-setuptool.sh install
+  become: true
+  become_user: "{{ docker_user }}"
+  environment:
+    HOME: "/home/{{ docker_user }}"
+    XDG_RUNTIME_DIR: "/run/user/{{ docker_user_uid }}"
+  register: rootless_install
+  changed_when: rootless_install.rc == 0
+  when: not docker_rootless_service.stat.exists
+
+- name: "Enable rootless Docker service for {{ docker_user }}"
+  ansible.builtin.systemd:
+    name: docker
+    scope: user
+    enabled: true
+    state: started
+  become: true
+  become_user: "{{ docker_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ docker_user_uid }}"
+
+- name: "Set DOCKER_HOST in {{ docker_user }} bashrc"
+  ansible.builtin.lineinfile:
+    path: "/home/{{ docker_user }}/.bashrc"
+    line: "export DOCKER_HOST=unix:///run/user/{{ docker_user_uid }}/docker.sock"
+    regexp: "^export DOCKER_HOST="
+    state: present
+    create: true
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0644"

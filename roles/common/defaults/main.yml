@@ -1,0 +1,12 @@
+---
+common_packages:
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - tmux
+  - net-tools
+  - ca-certificates
+  - gnupg
+  - apt-transport-https

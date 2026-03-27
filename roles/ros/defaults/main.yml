@@ -1,0 +1,12 @@
+---
+# Mapping of OS codename to supported ROS 2 distribution
+ros_distro_map:
+  noble: jazzy
+  jammy: humble
+  bookworm: jazzy
+
+# ROS package type: ros-base, desktop, or desktop-full
+ros_package_type: desktop
+
+# Additional ROS packages to install beyond the base metapackage
+ros_extra_packages: []
